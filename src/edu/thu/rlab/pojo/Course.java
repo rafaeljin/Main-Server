@@ -3,7 +3,7 @@ package edu.thu.rlab.pojo;
 import java.sql.Timestamp;
 import java.util.HashSet;
 import java.util.Set;
-
+import org.apache.struts2.json.annotations.JSON;
 
 /**
  * Course entity. @author MyEclipse Persistence Tools
@@ -108,7 +108,7 @@ public class Course implements java.io.Serializable {
 	public void setUsers(Set users) {
 		this.users = users;
 	}
-	//@JSON(serialize=false)
+	@JSON(serialize=false)
 	public Set getUsers_1() {
 		return this.users_1;
 	}
@@ -117,7 +117,7 @@ public class Course implements java.io.Serializable {
 		this.users_1 = users_1;
 	}
 
-	//@JSON(serialize=false)
+	@JSON(serialize=false)
 	public Set getExperiments() {
 		return this.experiments;
 	}

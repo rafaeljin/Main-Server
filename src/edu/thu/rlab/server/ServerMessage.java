@@ -1,9 +1,11 @@
 package edu.thu.rlab.server;
+import edu.thu.rlab.pojo.Course;
 
-import edu.thu.rlab.pojo.*;
-
-public class ServerMessage {
+public class ServerMessage implements java.io.Serializable{
 	
+	/* serialize version ID */
+	private static final long serialVersionUID = 3326100847047137828L;
+
 	private int type;
 	
 	public static final int RESOURCE_SERVER_AUTHEN = 0;
@@ -12,7 +14,13 @@ public class ServerMessage {
 	
 	public static final int RESOURCE_SERVER_UPDATE_COURSE = 1;
 	
-	private Course course;
+	private Course course = null;
+	
+	public static final int CLIENT_CONNECT = 2;
+	
+	public static final int RESOURCE_SERVER_AUTHEN_SUCCESS = 3;
+	
+	public static final int RESOURCE_SERVER_AUTHEN_FAILED = 4;
 	
 	public ServerMessage(int t,String code){
 		type = t;

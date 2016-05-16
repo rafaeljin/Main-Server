@@ -7,10 +7,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 
-import edu.thu.rlab.pojo.Course;
-import edu.thu.rlab.pojo.Cpu;
-import edu.thu.rlab.pojo.Device;
-import edu.thu.rlab.pojo.Experiment;
+import edu.thu.rlab.pojo.*;
 
 public class DBEditor {
 	
@@ -63,13 +60,35 @@ public class DBEditor {
 		} catch (SQLException e) {
 			System.out.println("Connection Error.");
 			e.printStackTrace();
-		}  
+		}
+        // Init statement
+ 		try {
+ 			statement = conn.createStatement();
+ 		} catch (SQLException e) {
+ 			System.out.println("MYSQL statement error.");
+ 			e.printStackTrace();
+ 		}
 		return;
 	}
 	
+	String stringValue(String s){
+		return "'" + s + "'";
+	}
 	
 	boolean	create(Course course){
-		
+        try {
+        	sql = "INSERT INTO " + dbname + ".course " + 
+		        "(id,code,name,year,season) VALUES('" +
+		        course.getId() + "','" + course.getCode() + "','" +
+		        course.getName() + "'," + course.getYear() + ",'" +
+		        course.getSeason() + "')"; //course.getSeason() + "'," + course.getCreateTime() +")";
+        	System.out.println(sql);
+			statement.executeUpdate(sql);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 		return true;
 	}
 	boolean	create(Cpu cpu){
@@ -83,14 +102,33 @@ public class DBEditor {
 	}
 	
 	
-	Course readby(String selector, String value){
-		Course course = null;
+	boolean create(User user){
 		try {
-			statement = conn.createStatement();
+        	sql = "INSERT INTO " + dbname + ".user " + 
+		        "(id,username,password,enabled,user_role,"+
+        		"school_no,name,clazz_name,email,phone,"+
+		        "createTime,lastLoginTime,lastLoginIp,"+
+        		"loginCount,onlineTime) VALUES("+
+		        stringValue(user.getId()) + "," + course.getCode() + "','" +
+		        course.getName() + "'," + course.getYear() + ",'" +
+		        course.getSeason() + "')"; //course.getSeason() + "'," + course.getCreateTime() +")";
+        	System.out.println(sql);
+			statement.executeUpdate(sql);
 		} catch (SQLException e) {
-			System.out.println("MYSQL statement error.");
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+
+		
+		
+		
+		return true;
+	}
+	
+	
+	Course readby(String selector, String value){
+		Course course = null;
+		
         try {
         	sql = "select * from " + dbname + ".course" + "where " + selector + "='" + value + "'";
 			ResultSet rs = statement.executeQuery(sql);
