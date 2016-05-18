@@ -127,12 +127,42 @@ public class DBEditor {
 	}
 	
 	
-	boolean	add(Device device){
-		return true;
-	}
-	
-	
 	boolean	add(Experiment exp){
+		try {
+        	List<String> keylist = new ArrayList<String>();
+        	List<String> valuelist = new ArrayList<String>();
+        	keylist.add("id"); valuelist.add(stringValue(exp.getId()));
+        	keylist.add("course_id"); valuelist.add(stringValue(exp.getCourse().getId()));
+        	keylist.add("user_id"); valuelist.add(stringValue(exp.getUser().getId()));
+        	keylist.add("name"); valuelist.add(stringValue(exp.getName()));
+        	keylist.add("create_time"); valuelist.add(stringValue(dateFormat.format(exp.getCreateTime())));
+        	keylist.add("op_time"); valuelist.add(Long.toString(exp.getOpTime()));
+        	keylist.add("op_times"); valuelist.add(Integer.toString(exp.getOpTimes()));
+        	keylist.add("submit_times"); valuelist.add(Integer.toString(exp.getSubmitTimes()));
+        	keylist.add("last_submit_path"); valuelist.add(stringValue(exp.getLastSubmitPath()));
+        	keylist.add("done"); valuelist.add(0+"");//valuelist.add(Boolean.toString(exp.getDone()));
+        	if(exp.getDoneTime()!=null){
+        		keylist.add("done_time"); valuelist.add(stringValue(dateFormat.format(exp.getDoneTime())));
+        	}
+        	if(exp.getSrcPath()!=null){
+        		keylist.add("src_path"); valuelist.add(stringValue(exp.getSrcPath()));
+        	}
+        	if(exp.getGrade()!=null){
+        		keylist.add("grade"); valuelist.add(Integer.toString(exp.getGrade()));
+        	}
+        	if(exp.getRemark()!=null){
+        		keylist.add("remark"); valuelist.add(stringValue(exp.getRemark()));
+        	}
+        	if(exp.getRemarkUser()!=null){
+        		keylist.add("remark_user_id"); valuelist.add(stringValue(exp.getRemarkUser().getId()));
+        	}
+        	sql = QueryCreator.getInsertQuery("maindb", "experiment", keylist, valuelist);
+        	System.out.println(sql);
+			statement.executeUpdate(sql);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		return true;
 	}
 	
@@ -227,7 +257,55 @@ public class DBEditor {
         return courses;
 	}
 	
-	
+	List<Experiment> readAllExperiments()
+	{
+		List<Experiment> exps = new ArrayList<Experiment>();
+        try {
+        	sql = QueryCreator.getSelectQueryAll(dbname,"experiment");
+			ResultSet rs = statement.executeQuery(sql);
+            while(rs.next()){ // should include all matches, modify later
+            	String id; User user;Course course;User remarkUser = null;String name;Timestamp createTime;Long opTime;
+            	Integer opTimes;Integer submitTimes;String lastSubmitPath;Boolean done;Timestamp doneTime = null;
+            	String srcPath = null;Integer grade = null;String remark = null;Date date;
+            
+            	id = rs.getString("id");
+            	course = new Course(); course.setId(rs.getString("course_id"));
+            	user = new User(); user.setId(rs.getString("user_id"));
+            	name = rs.getString("name");
+                date = dateFormat.parse(rs.getString("create_time"));
+                createTime = new Timestamp (date.getTime());
+            	opTime = Long.parseLong(rs.getString("op_time"));
+            	opTimes = Integer.parseInt(rs.getString("op_times"));
+            	submitTimes = Integer.parseInt(rs.getString("submit_times"));
+            	lastSubmitPath = rs.getString("last_submit_path");
+            	done = Boolean.parseBoolean("done");
+            	if(rs.getString("done_time")!= null){
+	            	date = dateFormat.parse(rs.getString("done_time"));
+	                doneTime = new Timestamp (date.getTime());
+	            }
+            	srcPath = rs.getString("src_path");
+            	if(rs.getString("grade")!=null){
+            		grade = Integer.parseInt(rs.getString("grade"));
+            	}
+            	remark = rs.getString("remark"); 
+            	if(rs.getString("remark_user_id")!=null){
+            		remarkUser = new User();remarkUser.setId(rs.getString("remark_user_id"));
+            	}
+            	Experiment e = new Experiment(user, course, remarkUser,name,createTime,opTime,  opTimes,  submitTimes,
+            			lastSubmitPath,  done,  doneTime,srcPath,  grade,  remark); e.setId(id);
+            	exps.add(e);
+                //System.out.println(id + "\t" + code + "\t" + name + "\t" + season + "\t" + year + "\t" + create_time);
+            }
+            rs.close();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        return exps;
+	}
 	List<Cpu> readAllCpus()
 	{
 		List<Cpu> cpus = new ArrayList<Cpu>();
