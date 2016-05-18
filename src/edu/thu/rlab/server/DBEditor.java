@@ -227,6 +227,25 @@ public class DBEditor {
 	}
 	
 	
+	boolean add(CourseHasUser chu)
+	{
+		try {
+        	List<String> keylist = new ArrayList<String>();
+        	List<String> valuelist = new ArrayList<String>();
+        	keylist.add("course_id"); valuelist.add(stringValue(chu.courseid));
+        	keylist.add("user_id"); valuelist.add(stringValue(chu.userid));
+        	
+        	sql = QueryCreator.getInsertQuery("maindb", "course_has_user", keylist, valuelist);
+        	System.out.println(sql);
+			statement.executeUpdate(sql);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return true;
+	}
+	
+	
 	List<Course> readAllCourses()
 	{
 		List<Course> courses = new ArrayList<Course>();
@@ -256,6 +275,7 @@ public class DBEditor {
 		}
         return courses;
 	}
+	
 	
 	List<Experiment> readAllExperiments()
 	{
@@ -306,30 +326,31 @@ public class DBEditor {
 		}
         return exps;
 	}
+	
+
 	List<Cpu> readAllCpus()
 	{
 		List<Cpu> cpus = new ArrayList<Cpu>();
-        /*try {
+        try {
         	sql = QueryCreator.getSelectQueryAll(dbname,"cpu");
 			ResultSet rs = statement.executeQuery(sql);
-			String id = null, user_id = null, experiment_name = null, variables = null;
             while(rs.next()){ // should include all matches, modify later
+            	String id = null, user_id = null, experiment_name = null, variables = null;
             	id = rs.getString("id");
             	user_id = rs.getString("user_id");
+            	User u = new User(); u.setId(user_id);
             	experiment_name = rs.getString("experiment_name");
             	variables = rs.getString("variables");
-                Course c = new Course(code, name, year, season, create_time);
-                courses.add(c);
+            	
+                Cpu cp = new Cpu(u, experiment_name, variables);
+                cpus.add(cp);
                 //System.out.println(id + "\t" + code + "\t" + name + "\t" + season + "\t" + year + "\t" + create_time);
             }
             rs.close();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (ParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}*/
+		}
         return cpus;
 	}
 	
@@ -389,6 +410,30 @@ public class DBEditor {
         return users;
 	}
 	
+	
+	List<CourseHasUser> readAllCHU()
+	{
+		List<CourseHasUser> chus = new ArrayList<CourseHasUser>();
+        try {
+        	sql = QueryCreator.getSelectQueryAll(dbname,"course_has_user");
+			ResultSet rs = statement.executeQuery(sql);
+            while(rs.next()){ // should include all matches, modify later
+            	String course_id = null, user_id = null;
+            	course_id = rs.getString("course_id");
+            	user_id = rs.getString("user_id");
+            	
+            	CourseHasUser chu = new CourseHasUser(course_id, user_id);
+                chus.add(chu);
+                //System.out.println(id + "\t" + code + "\t" + name + "\t" + season + "\t" + year + "\t" + create_time);
+            }
+            rs.close();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        return chus;
+	}
+
 	
 	Course readby(String selector, String value){
 		Course course = null;

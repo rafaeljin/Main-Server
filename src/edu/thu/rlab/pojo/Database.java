@@ -11,5 +11,7 @@ public class Database {
 	public List<User> userlist;
 	
 	public List<Cpu> cpulist;
+	
+	public List<CourseHasUser> chasulist;
 	 
 }
