@@ -6,6 +6,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Date;
 
 import edu.thu.rlab.pojo.*;
 
@@ -26,10 +32,11 @@ public class DBEditor {
 	// MYSQL statement
     Statement statement = null;
     String sql = null;
-    
+    DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     
     // Database Editor
-	public DBEditor(String name,String user,String password){
+	public DBEditor(String name,String user,String password)
+	{
 		dbname = name;
 		url = "jdbc:mysql://localhost:3306/" + dbname;
 		this.user = user;
@@ -37,7 +44,8 @@ public class DBEditor {
 	}
 	
 	
-	void connect(){
+	void connect()
+	{
 		// Load Driver
         try {
 			Class.forName(driver);
@@ -71,58 +79,157 @@ public class DBEditor {
 		return;
 	}
 	
-	String stringValue(String s){
+	
+	String stringValue(String s)
+	{
 		return "'" + s + "'";
 	}
 	
-	boolean	create(Course course){
+	
+	boolean	add(Course course){
         try {
-        	sql = "INSERT INTO " + dbname + ".course " + 
-		        "(id,code,name,year,season) VALUES('" +
-		        course.getId() + "','" + course.getCode() + "','" +
-		        course.getName() + "'," + course.getYear() + ",'" +
-		        course.getSeason() + "')"; //course.getSeason() + "'," + course.getCreateTime() +")";
+        	List<String> keylist = new ArrayList<String>();
+        	List<String> valuelist = new ArrayList<String>();
+        	keylist.add("id"); valuelist.add(stringValue(course.getId()));
+        	keylist.add("code"); valuelist.add(stringValue(course.getCode()));
+        	keylist.add("name"); valuelist.add(stringValue(course.getName()));
+        	keylist.add("year"); valuelist.add(Integer.toString(course.getYear()));
+        	keylist.add("season"); valuelist.add(stringValue(course.getSeason()));
+        	keylist.add("create_time"); valuelist.add(stringValue(dateFormat.format(course.getCreateTime())));
+        	sql = QueryCreator.getInsertQuery("maindb", "course", keylist, valuelist);
         	System.out.println(sql);
 			statement.executeUpdate(sql);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
-		return true;
-	}
-	boolean	create(Cpu cpu){
-		return true;
-	}
-	boolean	create(Device device){
-		return true;
-	}
-	boolean	create(Experiment exp){
 		return true;
 	}
 	
 	
-	boolean create(User user){
+	boolean	add(Cpu cpu){
 		try {
+        	List<String> keylist = new ArrayList<String>();
+        	List<String> valuelist = new ArrayList<String>();
+        	keylist.add("id"); valuelist.add(stringValue(cpu.getId()));
+        	keylist.add("user_id"); valuelist.add(stringValue(cpu.getUser().getId()));
+        	keylist.add("experiment_name"); valuelist.add(stringValue(cpu.getExperimentName()));
+        	keylist.add("variables"); valuelist.add(stringValue(cpu.getVariables()));
+        	sql = QueryCreator.getInsertQuery("maindb", "cpu", keylist, valuelist);
+        	System.out.println(sql);
+			statement.executeUpdate(sql);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return true;
+	}
+	
+	
+	boolean	add(Device device){
+		return true;
+	}
+	
+	
+	boolean	add(Experiment exp){
+		return true;
+	}
+	
+	
+	boolean add(User user){
+		/*try {
+        	List<String> keylist = new ArrayList<String>();
+        	List<String> valuelist = new ArrayList<String>();
+        	keylist.add("id"); valuelist.add(stringValue(course.getId()));
+        	keylist.add("username"); valuelist.add(stringValue(course.getCode()));
+        	keylist.add("password"); valuelist.add(stringValue(course.getName()));
+        	keylist.add("year"); valuelist.add(Integer.toString(course.getYear()));
+        	keylist.add("season"); valuelist.add(stringValue(course.getSeason()));
+        	keylist.add("create_time"); valuelist.add(stringValue(dateFormat.format(course.getCreateTime())));
+        	sql = QueryCreator.getInsertQuery("maindb", "course", keylist, valuelist);
+        	System.out.println(sql);
+			statement.executeUpdate(sql);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return true;
+		/*try {
         	sql = "INSERT INTO " + dbname + ".user " + 
 		        "(id,username,password,enabled,user_role,"+
         		"school_no,name,clazz_name,email,phone,"+
 		        "createTime,lastLoginTime,lastLoginIp,"+
         		"loginCount,onlineTime) VALUES("+
-		        stringValue(user.getId()) + "," + course.getCode() + "','" +
-		        course.getName() + "'," + course.getYear() + ",'" +
-		        course.getSeason() + "')"; //course.getSeason() + "'," + course.getCreateTime() +")";
+		        stringValue(user.getId()) + "," + user.getCode() + "','" +
+		        user.getName() + "'," + user.getYear() + ",'" +
+		        user.getSeason() + "')"; //course.getSeason() + "'," + course.getCreateTime() +")";
         	System.out.println(sql);
 			statement.executeUpdate(sql);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
+		}*/
 
-		
-		
-		
 		return true;
+	}
+	
+	
+	List<Course> readAllCourses()
+	{
+		List<Course> courses = new ArrayList<Course>();
+        try {
+        	sql = QueryCreator.getSelectQueryAll(dbname,"course");
+			ResultSet rs = statement.executeQuery(sql);
+			String id = null, code = null, name = null, season = null; Integer year = null; Timestamp create_time = null;
+            while(rs.next()){ // should include all matches, modify later
+            	id = rs.getString("id");
+            	code = rs.getString("code");
+                name = rs.getString("name");
+                year = Integer.parseInt(rs.getString("year"));
+                season = rs.getString("season");
+                Date date = dateFormat.parse(rs.getString("create_time"));
+                create_time = new Timestamp (date.getTime());
+                Course c = new Course(code, name, year, season, create_time); c.setId(id);
+                courses.add(c);
+                //System.out.println(id + "\t" + code + "\t" + name + "\t" + season + "\t" + year + "\t" + create_time);
+            }
+            rs.close();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        return courses;
+	}
+	
+	
+	List<Cpu> readAllCpus()
+	{
+		List<Cpu> cpus = new ArrayList<Cpu>();
+        /*try {
+        	sql = QueryCreator.getSelectQueryAll(dbname,"cpu");
+			ResultSet rs = statement.executeQuery(sql);
+			String id = null, user_id = null, experiment_name = null, variables = null;
+            while(rs.next()){ // should include all matches, modify later
+            	id = rs.getString("id");
+            	user_id = rs.getString("user_id");
+            	experiment_name = rs.getString("experiment_name");
+            	variables = rs.getString("variables");
+                Course c = new Course(code, name, year, season, create_time);
+                courses.add(c);
+                //System.out.println(id + "\t" + code + "\t" + name + "\t" + season + "\t" + year + "\t" + create_time);
+            }
+            rs.close();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}*/
+        return cpus;
 	}
 	
 	
