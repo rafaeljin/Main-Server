@@ -1,6 +1,6 @@
 package edu.thu.rlab.pojo;
 
-public class CourseHasUser {
+public class CourseHasUser implements java.io.Serializable{
 	
 	public String courseid;
 	public String userid;

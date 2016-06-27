@@ -4,8 +4,12 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 
-public class Device implements Runnable{
+import edu.thu.rlab.dao.DeviceDAO;
 
+public class Device implements Runnable,java.io.Serializable{
+
+	private DeviceDAO deviceDAO;
+	
 	
 	public static enum STATE{USING, AVAILABLE, BROKEN};
 	
@@ -38,13 +42,26 @@ public class Device implements Runnable{
 	
 	private byte[] buf = new byte[1024];
 	
-	public Device(String id, String ip, int usbPort, int tcpPort, STATE state) {
+	// for cloud server
+	private boolean external = false;
+	private String hostIP = null;
+	
+	public Device(String id, String ip, int usbPort, int tcpPort, STATE state, DeviceDAO deviceDAO) {
 		super();
 		this.id = id;
 		this.ip = ip;
 		this.usbPort = usbPort;
 		this.tcpPort = tcpPort;
 		this.state = state;
+		this.deviceDAO = deviceDAO;
+	}
+
+	public void setDeviceDAO(DeviceDAO deviceDAO) {
+		this.deviceDAO = deviceDAO;
+	}
+
+	public DeviceDAO getDeviceDAO() {
+		return deviceDAO;
 	}
 
 	public String getId() {
@@ -218,5 +235,23 @@ public class Device implements Runnable{
 	}
 
 	public void run() {
+		if(sysInit() < 0){
+			deviceDAO.afterDeviceSysInitFailed(this);
+		}
+	}
+	
+	public void setCloudParameters(boolean ext,String host)
+	{
+		this.external = ext;
+		this.hostIP = host;
+	}
+	
+	public String getHostServer()
+	{
+		if(external) {
+			return hostIP;
+		} else {
+			return null;
+		}
 	}
 }

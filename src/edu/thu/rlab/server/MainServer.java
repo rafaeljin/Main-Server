@@ -3,7 +3,6 @@ package edu.thu.rlab.server;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-//import edu.thu.rlab.pojo.Course;
 
 public class MainServer {
 
@@ -14,8 +13,6 @@ public class MainServer {
      */
     public static void main(String[] args) throws IOException {
     	
-        DBEditor dbeditor = new DBEditor("mainDB","root","rlab");
-        dbeditor.connect();
         ResourceManager rmanager = new ResourceManager();
         
         // Listening for connection from 
@@ -24,7 +21,7 @@ public class MainServer {
         try {
             while (true) {
                 Socket socket = listener.accept();
-                ServerThread serverThread = new ServerThread(socket,dbeditor,rmanager);
+                ServerThread serverThread = new ServerThread(socket,rmanager);
                 serverThread.start();
                 socket_count++;
                 System.out.println("Resource Servers connected:" + socket_count);// or client

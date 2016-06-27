@@ -5,11 +5,15 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.struts2.json.annotations.JSON;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
 /**
  * User entity. @author MyEclipse Persistence Tools
  */
 
-public class User implements java.io.Serializable {
+public class User implements UserDetails, java.io.Serializable {
 
 	public static enum DEVICESTATE {
 		NULL, APPLYING, USEING, TIMEOUT
@@ -30,6 +34,33 @@ public class User implements java.io.Serializable {
 
 	public void setExperiment(Experiment experiment) {
 		this.experiment = experiment;
+	}
+	//for security
+	private Collection<? extends GrantedAuthority> authorities;
+	
+	@JSON(serialize=false)
+	public Collection<? extends GrantedAuthority> getAuthorities() {
+		return this.authorities;
+	}
+	
+	public void setAuthorities(Collection<? extends GrantedAuthority> authorities) {
+		this.authorities = authorities;
+	}
+	@JSON(serialize=false)
+	public boolean isAccountNonExpired() {
+		return this.isEnabled();
+	}
+	@JSON(serialize=false)
+	public boolean isAccountNonLocked() {
+		return this.isEnabled();
+	}
+	@JSON(serialize=false)
+	public boolean isCredentialsNonExpired() {
+		return this.isEnabled();
+	}
+	@JSON(serialize=false)
+	public boolean isEnabled() {
+		return this.enabled;
 	}
 	
 	//following field in database

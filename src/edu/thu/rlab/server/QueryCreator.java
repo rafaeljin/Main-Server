@@ -1,5 +1,9 @@
 package edu.thu.rlab.server;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
+
 
 
 import org.apache.commons.lang.StringUtils;
@@ -19,5 +23,22 @@ public class QueryCreator
 	public static String getSelectQueryAll(String dbname,String type)
 	{
 		return "SELECT * from " + dbname + "." + type;
+	}
+	
+	public static String getRebuilding(String dbname)
+	{
+		String query = null;
+		try {
+			query = new String(Files.readAllBytes(Paths.get("rlab.sql")));
+			query = query.replaceAll("mydb", dbname);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		System.out.println(query);
+		
+		return query;
+		
+		
 	}
 }
